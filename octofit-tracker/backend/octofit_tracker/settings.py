@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3%9x139e0f09d(m2q&52_nd5c#-6p=z9ux+a1txz!h6ddjk%#y'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-3%9x139e0f09d(m2q&52_nd5c#-6p=z9ux+a1txz!h6ddjk%#y')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -28,7 +29,6 @@ DEBUG = True
 
 
 # Allow localhost and Codespace URL
-import os
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 codespace_name = os.environ.get('CODESPACE_NAME')
 if codespace_name:
@@ -82,6 +82,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'octofit_tracker.wsgi.application'
+ASGI_APPLICATION = 'octofit_tracker.asgi.application'
 
 
 # Database
@@ -99,9 +100,14 @@ DATABASES = {
 }
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+if codespace_name:
+    CORS_ALLOWED_ORIGINS.append(f"https://{codespace_name}-3000.app.github.dev")
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
 
 
