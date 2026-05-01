@@ -1,9 +1,6 @@
 from django.core.management.base import BaseCommand
-from django.conf import settings
 
-from django.db import connections
-
-from pymongo import ASCENDING
+from octofit_tracker.models import User, Team, Activity, Leaderboard, Workout
 
 # Sample data
 USERS = [
@@ -39,19 +36,27 @@ class Command(BaseCommand):
     help = 'Populate the octofit_db database with test data'
 
     def handle(self, *args, **options):
-        db = connections['default'].cursor().db_conn
-        # Drop collections if they exist
-        db.users.delete_many({})
-        db.teams.delete_many({})
-        db.activities.delete_many({})
-        db.leaderboard.delete_many({})
-        db.workouts.delete_many({})
-        # Insert test data
-        db.users.insert_many(USERS)
-        db.teams.insert_many(TEAMS)
-        db.activities.insert_many(ACTIVITIES)
-        db.leaderboard.insert_many(LEADERBOARD)
-        db.workouts.insert_many(WORKOUTS)
-        # Ensure unique index on email
-        db.users.create_index([("email", ASCENDING)], unique=True)
+        # Clear existing data via ORM
+        User.objects.all().delete()
+        Team.objects.all().delete()
+        Activity.objects.all().delete()
+        Leaderboard.objects.all().delete()
+        Workout.objects.all().delete()
+
+        # Insert test data via ORM
+        for data in USERS:
+            User.objects.create(**data)
+
+        for data in TEAMS:
+            Team.objects.create(**data)
+
+        for data in ACTIVITIES:
+            Activity.objects.create(**data)
+
+        for data in LEADERBOARD:
+            Leaderboard.objects.create(**data)
+
+        for data in WORKOUTS:
+            Workout.objects.create(**data)
+
         self.stdout.write(self.style.SUCCESS('octofit_db populated with test data.'))
